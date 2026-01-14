@@ -16,20 +16,15 @@ In real-time future deployments, each vehicle in the system will be assigned a u
 
 - Provides a `/get_dummy_message` API endpoint that dynamically generates and returns dummy UDP messages during no-RSU coverage periods, triggered by polling requests from the laptops.
 
----
-
 ### **pcap_uploader.py**
 A supporting Python script running on the server (Laptop-1 in the current setup), continuously monitoring the folder where selective TX `.pcap` files are stored on the laptop. When new files are detected, the script automatically uploads them to the central server using the Flask server's upload API, ensuring timely and structured transfer of packet data for centralized processing.
 
----
 
 ### **monitor_detection_v4.5.1.py**
 The updated OBU-to-laptop monitoring script, running on Laptop-1 connected to the OBU. This script implements automated RX stall detection by monitoring RX packet growth on the OBU and selectively pulling TX `.pcap` files during RX stall periods. Additional enhancements include:
 
 - Generation of a flag file (`rx_stalled.flag`) on the laptop to signal detected no-RSU coverage periods, enabling coordination with the laptop-to-OBU communication process.
 - Detection of OBU halt events based on TX packet activity, triggering the creation of a halt flag file (`obu_halted.flag`) for clean system shutdown and process synchronization.
-
----
 
 ### **laptopSocket.py**
 The updated laptop-to-OBU communication script, running in parallel with `monitor_detection_v4.5.1.py`. This script introduces conditional and automated message transmission by:
@@ -50,4 +45,5 @@ On the OBU side, communication packets received from RSUs are continuously writt
 An **RX stall** is defined as a communication state in which no new packets are received from the RSU for a continuous duration exceeding a predefined time threshold. In this project, RX stalls are detected by monitoring whether the RX `.pcap` file size remains unchanged over successive time intervals. Although packet-level gaps can naturally occur at millisecond-level durations, a longer and more conservative threshold (on the order of several seconds) was selected to robustly identify sustained communication loss. When no packet growth is observed beyond this threshold, the system classifies the state as an RX stall, indicating that the vehicle has moved outside RSU coverage.
 
 Once an RX stall condition is detected (i.e., during RSU out-of-coverage periods), the system triggers the multi-channel fallback communication workflow. During this period, the laptop polls the central server and the central server generates simple dummy messages, which are then transmitted to the OBU as UDP packets. These UDP messages consist of plain-text English messages and serve solely as lightweight placeholders to verify end-to-end communication continuity during RSU out-of-coverage periods. The packet data is used strictly for monitoring communication availability, detecting RX stall conditions, and validating fallback communication paths, without performing any packet content analysis or modification.
+
 
