@@ -6,8 +6,6 @@ The central server communication setup relies on a set of interdependent Python 
 
 The following code files were developed and deployed as part of this setup:
 
----
-
 ### **app.py**
 The core Flask web application that serves as the interface for the central server. In its updated version, this script performs two key functions beyond displaying a basic confirmation message on the server's web interface:
 
@@ -47,6 +45,7 @@ On the OBU side, communication packets received from RSUs are continuously writt
 An **RX stall** is defined as a communication state in which no new packets are received from the RSU for a continuous duration exceeding a predefined time threshold. In this project, RX stalls are detected by monitoring whether the RX `.pcap` file size remains unchanged over successive time intervals. Although packet-level gaps can naturally occur at millisecond-level durations, a longer and more conservative threshold (on the order of several seconds) was selected to robustly identify sustained communication loss. When no packet growth is observed beyond this threshold, the system classifies the state as an RX stall, indicating that the vehicle has moved outside RSU coverage.
 
 Once an RX stall condition is detected (i.e., during RSU out-of-coverage periods), the system triggers the multi-channel fallback communication workflow. During this period, the laptop polls the central server and the central server generates simple dummy messages, which are then transmitted to the OBU as UDP packets. These UDP messages consist of plain-text English messages and serve solely as lightweight placeholders to verify end-to-end communication continuity during RSU out-of-coverage periods. The packet data is used strictly for monitoring communication availability, detecting RX stall conditions, and validating fallback communication paths, without performing any packet content analysis or modification.
+
 
 
 
